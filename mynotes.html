@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0056b3">
+    <!-- Metatag per iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Manifest integrato -->
@@ -37,16 +38,19 @@
             margin-bottom: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .note h3 {
             margin: 0;
             color: #333;
+            flex-grow: 1;
         }
 
-        .note p {
-            margin: 10px 0 0;
-            color: #555;
+        .note button {
+            margin-left: 10px;
         }
 
         .modal {
@@ -182,7 +186,6 @@
                     noteElement.className = 'note';
                     noteElement.innerHTML = `
                         <h3>${note.title}</h3>
-                        <p>${note.text}</p>
                         <button onclick="editNote(${index})"><i class="fas fa-edit"></i> Modifica</button>
                         <button onclick="deleteNote(${index})"><i class="fas fa-trash"></i> Elimina</button>
                     `;
@@ -293,10 +296,17 @@
             const swCode = `
                 self.addEventListener('install', (event) => {
                     console.log('Service Worker installato');
+                    event.waitUntil(self.skipWaiting());
+                });
+
+                self.addEventListener('activate', (event) => {
+                    console.log('Service Worker attivato');
+                    event.waitUntil(self.clients.claim());
                 });
 
                 self.addEventListener('fetch', (event) => {
                     console.log('Fetch intercettato:', event.request.url);
+                    event.respondWith(fetch(event.request));
                 });
             `;
             const blob = new Blob([swCode], { type: 'application/javascript' });
